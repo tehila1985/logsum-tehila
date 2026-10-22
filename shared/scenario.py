@@ -35,6 +35,7 @@ def run(scenario: dict, ws: Workspace, make_agent, harness: str, loc: dict) -> d
                 "tool_calls": r["tool_calls"],
                 "cost_usd": round(r["cost_usd"], 6),
                 "seconds": r["seconds"],
+                "model_usage": r.get("model_usage"),
                 "response": r["response"],
             })
         persisted[sid] = agent.persisted_messages()

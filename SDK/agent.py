@@ -27,6 +27,7 @@ class LogSumAgent:
         self.model, self.effort = model, effort
         self.label = session_id
         self.session_id = resume  # Claude Code's own session id, set after the first turn
+        self.cost_so_far = 0.0  # total_cost_usd is cumulative over a resumed session
 
     def _options(self) -> ClaudeAgentOptions:
         return ClaudeAgentOptions(
@@ -61,6 +62,8 @@ class LogSumAgent:
         # compaction and prompt caching: automatic inside Claude Code  # replaces: compaction, caching
         self.session_id = result.session_id
         usage = result.usage or {}  # replaces: tokens
+        turn_cost = (result.total_cost_usd or 0.0) - self.cost_so_far  # replaces: tokens
+        self.cost_so_far = result.total_cost_usd or 0.0
         return {
             "response": result.result or response,
             "tool_calls": tool_calls,
@@ -69,7 +72,8 @@ class LogSumAgent:
             "cache_write": usage.get("cache_creation_input_tokens", 0),  # replaces: tokens
             "output": usage.get("output_tokens", 0),  # replaces: tokens
             "model_calls": len(calls),
-            "cost_usd": result.total_cost_usd or 0.0,  # replaces: tokens
+            "cost_usd": turn_cost,  # replaces: tokens
+            "model_usage": result.model_usage,
         }
 
     def turn(self, text: str) -> dict:
