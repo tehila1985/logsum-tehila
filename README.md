@@ -14,6 +14,14 @@ The design is in [PLAN.md](PLAN.md) and the comparison is in [REPORT.md](REPORT.
 pip install -r requirements.txt
 ```
 
+## Chat UI
+
+```powershell
+python web/server.py          # then open http://localhost:8000
+```
+
+A local chat page that runs the real agent. Switch between the SDK and API harnesses in the header. The side panel shows memory changing after each answer and lists the log files. Buttons start a new session (a new agent instance that loads memory from disk), add new errors to `worker.log`, upload your own `.log` file, or reset everything. The server uses the standard library only. The API harness is enabled only if `ANTHROPIC_API_KEY` is set in the terminal before you start the server, and the server hides the key from the SDK so the SDK still bills your Claude Code login. State lives in `runs/web-api/` and `runs/web-sdk/` and persists across restarts. Use `--fresh` to start empty.
+
 ## Run
 
 ```powershell

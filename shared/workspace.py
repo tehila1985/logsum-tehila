@@ -33,6 +33,15 @@ class Workspace:
         ws.history_dir.mkdir(parents=True)
         return ws
 
+    @classmethod
+    def ensure(cls, root: Path) -> "Workspace":
+        """Open a workspace, creating it (with fresh logs) only if it doesn't exist yet."""
+        ws = cls(Path(root))
+        if not ws.logs_dir.exists():
+            make_logs(ws.logs_dir)
+        ws.history_dir.mkdir(parents=True, exist_ok=True)
+        return ws
+
     def pre_step(self, step: str | None) -> None:
         if step:
             PRE_STEPS[step](self.logs_dir)
