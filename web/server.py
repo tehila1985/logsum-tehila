@@ -84,7 +84,7 @@ class Harness:
         return {"name": self.name, "available": self.available, "reason": self.reason, "session": self.session_id}
 
 
-def build_harnesses() -> dict[str, Harness]:
+def build_harnesses(fallbacks: bool = True) -> dict[str, Harness]:
     key = os.environ.pop("ANTHROPIC_API_KEY", None)  # the SDK subprocess must not see it (billing)
     harnesses = {}
 
@@ -99,7 +99,7 @@ def build_harnesses() -> dict[str, Harness]:
 
         from API.agent import LogSumAgent as APIAgent
         client = anthropic.Anthropic(api_key=key)
-        harnesses["api"] = Harness("api", lambda ws, sid: APIAgent(client, ws, sid, MODEL, EFFORT), True)
+        harnesses["api"] = Harness("api", lambda ws, sid: APIAgent(client, ws, sid, MODEL, EFFORT, fallbacks=fallbacks), True)
     else:
         harnesses["api"] = Harness("api", None, False,
                                    'ANTHROPIC_API_KEY is not set. Start the server after: $env:ANTHROPIC_API_KEY="sk-ant-..."')
@@ -214,12 +214,13 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--fresh", action="store_true", help="start with empty memory, history and fresh logs")
+    ap.add_argument("--no-fallbacks", action="store_true", help="API harness: don't send the server-side fallbacks beta")
     args = ap.parse_args()
     if args.fresh:
         for name in ("web-api", "web-sdk"):
             shutil.rmtree(ROOT / "runs" / name, ignore_errors=True)
 
-    harnesses = build_harnesses()
+    harnesses = build_harnesses(fallbacks=not args.no_fallbacks)
     for h in harnesses.values():
         print(f"  {h.name}: {'ready' if h.available else 'off - ' + h.reason}")
     server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(Backend(harnesses)))
