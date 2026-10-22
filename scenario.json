@@ -1,0 +1,25 @@
+{
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "sessions": [
+    {
+      "id": "s1",
+      "turns": [
+        {"id": "t1", "user": "Which log files do I have, and what are the main errors in app.log?"},
+        {"id": "t2", "user": "Check nginx.log for 5xx errors. Which endpoint and when? Save this as an incident."},
+        {"id": "t3", "user": "The DBTimeout errors in worker.log are known - they're caused by the nightly backup. Remember that. Also always ignore healthcheck lines."},
+        {"id": "t4", "user": "From now on, give me summaries as short bullets, in English."}
+      ]
+    },
+    {
+      "id": "s2",
+      "pre": "append_new_errors_to_worker_log",
+      "turns": [
+        {"id": "t5", "user": "What's new in worker.log? Only things I don't already know about."},
+        {"id": "t6", "user": "Did we already have an incident on checkout? What was it?"},
+        {"id": "t7", "user": "Actually, stop ignoring healthcheck - I want to see it. And switch summaries to Hebrew."},
+        {"id": "t8", "user": "Summarize worker.log again."}
+      ]
+    }
+  ]
+}
